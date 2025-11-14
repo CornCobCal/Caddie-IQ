@@ -160,7 +160,7 @@
         </section>
       </section>
 
-      <!-- RIGHT: Shot + Advice + Quick Stats + Mental Coach -->
+      <!-- RIGHT: Shot + Advice + Quick Stats + Rounds + Mental Coach -->
       <section class="column">
         <!-- Current shot -->
         <section class="card">
@@ -296,6 +296,27 @@
 
           <div id="statsSummary" class="stats-summary muted small">
             No stats saved yet for this course today.
+          </div>
+        </section>
+
+        <!-- Round summary -->
+        <section class="card">
+          <h2 class="section-title">Round summary</h2>
+          <div id="roundStatus" class="round-status small">
+            No active round. Select a course and tap <strong>Start new round</strong> when you tee off.
+          </div>
+
+          <div class="card-footer">
+            <button id="startRoundBtn" class="btn secondary small" type="button">
+              Start new round
+            </button>
+            <button id="endRoundBtn" class="btn ghost small" type="button">
+              End round
+            </button>
+          </div>
+
+          <div id="roundHistory" class="round-history small">
+            No completed rounds yet. End a round to see it here.
           </div>
         </section>
 
