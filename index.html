@@ -5,10 +5,7 @@
   <title>Caddie IQ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- PWA manifest -->
   <link rel="manifest" href="manifest.json" />
-
-  <!-- Basic meta colors (browser will pick based on scheme) -->
   <meta name="theme-color" content="#020617" />
   <meta name="description" content="Caddie IQ – your personal golf caddie, stats tracker, and mental coach." />
 
@@ -17,23 +14,22 @@
 <body>
   <div class="app-shell">
     <header class="app-header">
-  <div class="logo-lockup">
-    <div class="logo-icon" aria-hidden="true"></div>
-    <div class="logo-text">
-      <div class="logo-title">Caddie IQ</div>
-      <div class="logo-subtitle">Your personal golf caddie, anywhere.</div>
-    </div>
-  </div>
-  <div class="header-actions">
-    <button id="themeToggleBtn" class="btn ghost small" type="button">
-      Theme: Auto
-    </button>
-    <button id="installBtn" class="btn ghost small" type="button" hidden>
-      Install app
-    </button>
-  </div>
-</header>
-
+      <div class="logo-lockup">
+        <div class="logo-icon" aria-hidden="true"></div>
+        <div class="logo-text">
+          <div class="logo-title">Caddie IQ</div>
+          <div class="logo-subtitle">Your personal golf caddie, anywhere.</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="themeToggleBtn" class="btn ghost small" type="button">
+          Theme: Auto
+        </button>
+        <button id="installBtn" class="btn ghost small" type="button" hidden>
+          Install app
+        </button>
+      </div>
+    </header>
 
     <main class="app-main">
       <!-- LEFT: Player + Course -->
@@ -76,38 +72,20 @@
             </div>
           </div>
           <div class="profile-row profile-row-bottom">
-  <div class="grid three">
-    <label class="field compact">
-      <span>Avatar tone</span>
-      <select id="avatarTone">
-        <option value="light">Light</option>
-        <option value="medium" selected>Medium</option>
-        <option value="dark">Dark</option>
-      </select>
-    </label>
-    <label class="field compact">
-      <span>Shirt color</span>
-      <select id="avatarColor">
-        <option value="#22c55e">Green</option>
-        <option value="#0ea5e9">Blue</option>
-        <option value="#f97316">Orange</option>
-        <option value="#e11d48">Red</option>
-        <option value="#a855f7">Purple</option>
-      </select>
-    </label>
-    <label class="field compact">
-      <span>Hat</span>
-      <select id="avatarHat">
-        <option value="none">No hat</option>
-        <option value="cap" selected>Cap</option>
-      </select>
-    </label>
-  </div>
-  <button id="saveProfileBtn" class="btn secondary small" type="button">
-    Save profile
-  </button>
-</div>
-
+            <label class="field compact">
+              <span>Avatar color</span>
+              <select id="avatarColor">
+                <option value="#22c55e">Green</option>
+                <option value="#0ea5e9">Blue</option>
+                <option value="#f97316">Orange</option>
+                <option value="#e11d48">Red</option>
+                <option value="#a855f7">Purple</option>
+              </select>
+            </label>
+            <button id="saveProfileBtn" class="btn secondary small" type="button">
+              Save profile
+            </button>
+          </div>
         </section>
 
         <!-- Course + hole -->
@@ -291,6 +269,9 @@
           </div>
 
           <div class="card-footer">
+            <button id="resetStatsBtn" class="btn ghost small" type="button">
+              Reset stats for this course
+            </button>
             <button id="saveOutcomeBtn" class="btn secondary small" type="button">
               Save outcome
             </button>
@@ -311,4 +292,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
