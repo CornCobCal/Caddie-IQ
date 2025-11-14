@@ -1,5 +1,6 @@
 // Caddie IQ core logic
 // - Profile + detailed avatar customization
+// - What's in my bag (club yardages)
 // - Course + hole notes
 // - Shot advice (rule-based for now)
 // - Simple stats tracking
@@ -69,6 +70,28 @@ const STORAGE_NOTES = "caddieIQ_notes_v1";
 const STORAGE_STATS = "caddieIQ_stats_v1";
 const STORAGE_ROUNDS = "caddieIQ_rounds_v1";
 const STORAGE_ACTIVE_ROUND = "caddieIQ_activeRound_v1";
+const STORAGE_BAG = "caddieIQ_bag_v1";
+
+// human-readable names for bag clubs
+const CLUB_LABELS = {
+  driver: "Driver",
+  "3w": "3 wood",
+  "5w": "5 wood",
+  "2h": "2 hybrid",
+  "3h": "3 hybrid",
+  "4h": "4 hybrid",
+  "4i": "4 iron",
+  "5i": "5 iron",
+  "6i": "6 iron",
+  "7i": "7 iron",
+  "8i": "8 iron",
+  "9i": "9 iron",
+  pw: "Pitching wedge",
+  gw: "Gap wedge",
+  sw: "Sand wedge",
+  lw: "Lob wedge",
+  putter: "Putter"
+};
 
 // ---- Helpers ----
 
@@ -123,7 +146,7 @@ function updateAvatarFromProfile() {
   if (tone === "dark") skin = "#b8693d";
   avatar.style.setProperty("--avatar-skin", skin);
 
-  // hair color stays dark for now, but we react to style
+  // hair color
   avatar.style.setProperty("--avatar-hair", "#111827");
 
   // hair style & hat
@@ -153,7 +176,7 @@ function saveProfile() {
 
   const btn = $("saveProfileBtn");
   const original = btn.textContent;
-  btn.textContent = "Saved";
+  btn.textContent = "Profile saved";
   setTimeout(() => (btn.textContent = original), 900);
 }
 
@@ -168,6 +191,111 @@ function loadProfileIntoUI() {
   if (p.avatarHair) $("avatarHair").value = p.avatarHair;
   if (p.avatarBg) $("avatarBg").value = p.avatarBg;
   updateAvatarFromProfile();
+}
+
+// ---- What's in my bag ----
+
+function getBag() {
+  return loadJSON(STORAGE_BAG, {}); // object keyed by club id
+}
+
+function saveBag(bag) {
+  saveJSON(STORAGE_BAG, bag);
+}
+
+function clearBagFields() {
+  $("bagClub").value = "";
+  $("bagCarry").value = "";
+  $("bagNote").value = "";
+}
+
+function saveBagClub() {
+  const clubKey = $("bagClub").value;
+  const carryRaw = $("bagCarry").value;
+  const note = $("bagNote").value.trim();
+
+  if (!clubKey || !carryRaw) {
+    return;
+  }
+
+  const carry = parseInt(carryRaw, 10);
+  if (Number.isNaN(carry) || carry <= 0) {
+    return;
+  }
+
+  const label = CLUB_LABELS[clubKey] || clubKey;
+  const bag = getBag();
+  bag[clubKey] = { key: clubKey, label, carry, note };
+
+  saveBag(bag);
+  renderBagList();
+}
+
+function deleteBagClub(key) {
+  const bag = getBag();
+  if (bag[key]) {
+    delete bag[key];
+    saveBag(bag);
+    renderBagList();
+  }
+}
+
+function renderBagList() {
+  const container = $("bagList");
+  const bag = getBag();
+  const keys = Object.keys(bag);
+
+  if (!keys.length) {
+    container.textContent = "No clubs saved yet. Add your first club above.";
+    return;
+  }
+
+  const sorted = keys
+    .map((k) => bag[k])
+    .sort((a, b) => {
+      // rough order: driver -> woods -> hybrids -> irons -> wedges -> putter
+      const order = [
+        "driver",
+        "3w",
+        "5w",
+        "2h",
+        "3h",
+        "4h",
+        "4i",
+        "5i",
+        "6i",
+        "7i",
+        "8i",
+        "9i",
+        "pw",
+        "gw",
+        "sw",
+        "lw",
+        "putter"
+      ];
+      return order.indexOf(a.key) - order.indexOf(b.key);
+    });
+
+  container.innerHTML = sorted
+    .map((club) => {
+      const noteText = club.note ? ` · ${club.note}` : "";
+      return `
+        <div class="bag-item">
+          <div class="bag-main">
+            <span class="bag-title">${club.label}</span>
+            <span class="bag-meta">${club.carry} yds carry${noteText}</span>
+          </div>
+          <button
+            class="btn ghost small"
+            type="button"
+            data-bag-delete="${club.key}"
+          >
+            Remove
+          </button>
+        </div>
+      `;
+    })
+    .join("");
 }
 
 // ---- Courses + hole notes ----
@@ -258,7 +386,7 @@ function saveNotesForCurrentHole() {
 
   const btn = $("saveNotesBtn");
   const original = btn.textContent;
-  btn.textContent = "Notes saved";
+  btn.textContent = "Hole plan saved";
   setTimeout(() => (btn.textContent = original), 900);
 }
 
@@ -299,18 +427,18 @@ function applyWindAdjustment(distance, strength, direction) {
   } else if (strength === "medium") {
     if (direction === "into") {
       adjusted *= 1.1;
-      comment = "Medium headwind: roughly one extra club.";
+      comment = "Steady headwind: roughly one extra club.";
     } else if (direction === "with") {
       adjusted *= 0.9;
-      comment = "Medium downwind: roughly one less club.";
+      comment = "Steady downwind: roughly one less club.";
     }
   } else if (strength === "strong") {
     if (direction === "into") {
       adjusted *= 1.18;
-      comment = "Strong headwind: 1–2 extra clubs and a solid, controlled swing.";
+      comment = "Heavy headwind: 1–2 extra clubs and a smooth, controlled swing.";
     } else if (direction === "with") {
       adjusted *= 0.85;
-      comment = "Strong downwind: club down and flight it a bit lower.";
+      comment = "Heavy downwind: club down and flight it a bit lower.";
     }
   }
 
@@ -338,7 +466,7 @@ function buildAdvice() {
 
   if (!distRaw || distRaw <= 0) {
     adviceEl.innerHTML =
-      '<p class="muted">Give me at least a distance and I\'ll suggest a club and target.</p>';
+      '<p class="muted">Give me at least a distance and a rough idea of the lie, and I\'ll turn it into a simple plan.</p>';
     return;
   }
 
@@ -356,21 +484,40 @@ function buildAdvice() {
   const club = suggestClub(adjDistance);
 
   const profile = loadJSON(STORAGE_PROFILE, {});
+  const bag = getBag();
+
+  // if bag has a near club, mention it
+  const bagClubs = Object.values(bag);
+  let bagSuggestion = "";
+  if (bagClubs.length) {
+    let best = null;
+    let bestDiff = Infinity;
+    bagClubs.forEach((c) => {
+      const diff = Math.abs(c.carry - adjDistance);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        best = c;
+      }
+    });
+    if (best) {
+      bagSuggestion = ` Based on your bag, <strong>${best.label}</strong> (about ${best.carry} yds) is very close to this number.`;
+    }
+  }
 
   // Club section
   const preferred = holeNotes.preferredClub
     ? ` (you like ${holeNotes.preferredClub} here)`
     : "";
   const shape = profile.shape
-    ? ` You tend to play a ${profile.shape}, so picture that shape into this target.`
+    ? ` You tend to play a ${profile.shape}. Picture that shape tracing into your target.`
     : "";
 
   const clubHTML = `
     <div>
-      <div class="advice-section-title">Club selection</div>
+      <div class="advice-section-title">Club choice</div>
       <p><strong>Suggested club:</strong> ${club}${preferred} for about ${Math.round(
-    adjDistance
-  )} yards.${shape}</p>
+        adjDistance
+      )} yards.${shape}${bagSuggestion}</p>
     </div>
   `;
 
@@ -378,23 +525,23 @@ function buildAdvice() {
   let strat = "";
 
   if (hazLeft && !hazRight) {
-    strat += "Favor the right half of your target and keep it away from the left trouble. ";
+    strat += "See a shot that finishes safely on the right half of your target, away from the left trouble. ";
   } else if (hazRight && !hazLeft) {
-    strat += "Favor the left half of your target and keep it away from the right trouble. ";
+    strat += "See your ball riding the left half of the fairway or green, never flirting with the right side. ";
   } else if (hazLeft && hazRight) {
     strat +=
-      "Both sides have trouble, so pick a small central target and focus on a solid, centered start line. ";
+      "Both sides have teeth, so think small and centered: a tight window right over the middle and a smooth, balanced swing. ";
   }
 
   if (hazShort && !hazLong) {
-    strat += "Anything just past the front edge is perfect; avoid coming up short. ";
+    strat += "Pick a number that comfortably carries the front edge and live with anything pin-high or a touch long. ";
   } else if (!hazShort && hazLong) {
-    strat += "Short or pin-high is ideal; favor a yardage that cannot fly long of the green. ";
+    strat += "Plan for front or pin-high. Choose a yardage that simply cannot fly over the back. ";
   }
 
   if (!strat) {
     strat =
-      "Choose the safest part of the green or fairway as your target, not the pin, and commit fully to that picture.";
+      "Aim for the fat part of the green or fairway—not the hero line—and let a solid, repeatable swing do the work.";
   }
 
   const safeTarget = holeNotes.safeTarget
@@ -406,7 +553,7 @@ function buildAdvice() {
 
   const stratHTML = `
     <div>
-      <div class="advice-section-title">Strategy</div>
+      <div class="advice-section-title">Strategy picture</div>
       <p>${strat}</p>
       ${safeTarget}
       ${dangerNote}
@@ -416,17 +563,17 @@ function buildAdvice() {
   // Conditions section
   const lieNote =
     lie === "rough"
-      ? "From the rough, expect less spin and possible flyers. Favor the fat side of the target."
+      ? "From the rough, expect less spin and possible flyers. Favor the big side of the target and commit to crisp contact."
       : lie === "sand"
-      ? "From sand, prioritize solid contact and a stable base. Distance control is secondary."
+      ? "From sand, build a stable base and focus on clipping the ball clean. Distance control is second to getting out."
       : lie === "other"
-      ? "With a non-standard lie, simplify your thought: one smooth swing, solid contact."
-      : "Standard lie: trust your normal yardages.";
+      ? "Weird lie? Shrink your goal: one calm, centered swing and solid contact."
+      : "Standard lie: trust your normal yardages and tempo.";
 
   const windHTML = `
     <div>
-      <div class="advice-section-title">Conditions</div>
-      <p>${windComment || "Wind isn't a huge factor on this swing."}</p>
+      <div class="advice-section-title">Wind & lie</div>
+      <p>${windComment || "Wind isn’t a major player here—swing your normal number."}</p>
       <p class="advice-note">${lieNote}</p>
     </div>
   `;
@@ -434,10 +581,10 @@ function buildAdvice() {
   // Mental cue section
   const cue =
     holeNotes.mentalCue ||
-    "Deep breath, soft grip, pick one small target, and make a smooth, committed swing.";
+    "Deep breath… soft hands… one tiny target. Make a swing you could repeat all day.";
   const mentalHTML = `
     <div>
-      <div class="advice-section-title">Mental cue</div>
+      <div class="advice-section-title">On the tee thoughts</div>
       <p>${cue}</p>
     </div>
   `;
@@ -503,9 +650,9 @@ function updateStatsSummary() {
   const avgPutts = s.putts ? (s.putts / s.shots).toFixed(1) : "0.0";
 
   el.innerHTML = `
-    Shots tracked: <strong>${s.shots}</strong><br />
+    Holes tracked: <strong>${s.shots}</strong><br />
     Fairways hit: <strong>${fairwayPct}%</strong> · GIR: <strong>${girPct}%</strong><br />
-    Avg putts on recorded holes: <strong>${avgPutts}</strong>
+    Average putts on recorded holes: <strong>${avgPutts}</strong>
   `;
 }
 
@@ -620,7 +767,7 @@ function updateRoundUI() {
 
   if (!active) {
     statusEl.innerHTML =
-      'No active round. Select a course and tap <strong>Start new round</strong> when you tee off.';
+      'No active round. Choose your course and tap <strong>Start new round</strong> when you hit your first tee shot.';
   } else {
     const fairwayPct = active.shots ? Math.round((active.fairways / active.shots) * 100) : 0;
     const girPct = active.shots ? Math.round((active.gir / active.shots) * 100) : 0;
@@ -628,7 +775,7 @@ function updateRoundUI() {
 
     statusEl.innerHTML = `
       Active round: <strong>${active.courseName}</strong> (${active.date})<br />
-      Holes tracked: <strong>${active.shots}</strong> · FW: <strong>${fairwayPct}%</strong> · GIR: <strong>${girPct}%</strong> · Avg putts: <strong>${avgPutts}</strong>
+      Holes tracked so far: <strong>${active.shots}</strong> · FW: <strong>${fairwayPct}%</strong> · GIR: <strong>${girPct}%</strong> · Avg putts: <strong>${avgPutts}</strong>
     `;
   }
 
@@ -668,7 +815,7 @@ function clearShotInputs() {
   $("hazLong").checked = false;
 
   $("adviceContent").innerHTML =
-    '<p class="muted">Enter your distance and context, then tap <strong>Get caddie advice</strong>.</p>';
+    '<p class="muted">Drop in a distance and a little context, then tap <strong>Build my caddie plan</strong> to get started.</p>';
 }
 
 // ---- Mental coach ----
@@ -685,28 +832,28 @@ function buildMoodCue() {
   if (mood === "nervous") {
     title = "Settle the nerves";
     body =
-      "Breathe in for 4, hold for 2, out for 6. Your only job is a smooth, committed swing at a small target.";
-    extra = "Pick a safe target, one club more if needed, and swing at 80% speed.";
+      "Breathe in for 4, hold for 2, out for 6. Your only job is a smooth, committed swing at a tiny target.";
+    extra = "Pick a safe target, take one more club if you’re unsure, and swing at 80% speed.";
   } else if (mood === "frustrated") {
     title = "Let it go";
     body =
-      "You can’t fix past shots. This swing is a fresh start. Soften your grip, unclench your jaw, and commit to tempo.";
-    extra = "Aim at the big side of the fairway or green and just get back in rhythm.";
+      "You can’t chase lost strokes. This swing is a brand new story. Ease your jaw, loosen your grip, and feel the clubhead get heavy.";
+    extra = "Aim at the fat side of the hole, not the pin. Win back momentum with one boring, solid shot.";
   } else if (mood === "overconfident") {
     title = "Smart aggression";
     body =
-      "Confidence is good; forcing it is not. Choose the smart target first, then swing freely.";
-    extra = "Ask: ‘If I hit this 8/10 instead of perfect, is it still okay?’ If not, pick a safer line.";
+      "Confidence is a weapon when it’s pointed at the right target. Choose the smart line first, then swing bravely.";
+    extra = "Ask yourself: ‘If I hit this 8 out of 10, is it still okay?’ If not, dial back the line.";
   } else if (mood === "tired") {
-    title = "Simplify";
+    title = "Simple golf";
     body =
-      "When you’re tired, your best golf is simple golf. One thought: solid contact.";
-    extra = "Take half a club more, favor the safe side, and keep your body tension low.";
+      "Tired swings love simple thoughts. One feel: smooth tempo and balanced finish.";
+    extra = "Take a touch more club, favor the wide side of the green, and let go of perfect distance.";
   } else if (mood === "calm") {
     title = "Stay in the pocket";
     body =
-      "You’re in a good place. Keep the same routine: breath, target, smooth swing.";
-    extra = "Stay patient. Good rounds are built on boring, repeatable swings.";
+      "You’re in a good place. Guard this feeling by keeping the same routine: breath, target, swing.";
+    extra = "Stay patient. Great rounds are built one quietly solid swing at a time.";
   }
 
   out.innerHTML = `
@@ -755,9 +902,11 @@ function init() {
   loadNotesForCurrentHole();
   updateStatsSummary();
   updateRoundUI();
+  renderBagList();
   registerSW();
   setupInstallPrompt();
 
+  // profile
   $("saveProfileBtn").addEventListener("click", saveProfile);
   $("avatarColor").addEventListener("change", saveProfile);
   $("avatarTone").addEventListener("change", saveProfile);
@@ -765,6 +914,17 @@ function init() {
   $("avatarHair").addEventListener("change", saveProfile);
   $("avatarBg").addEventListener("change", saveProfile);
 
+  // bag
+  $("bagSaveBtn").addEventListener("click", saveBagClub);
+  $("bagClearBtn").addEventListener("click", clearBagFields);
+  $("bagList").addEventListener("click", (e) => {
+    const key = e.target.getAttribute("data-bag-delete");
+    if (key) {
+      deleteBagClub(key);
+    }
+  });
+
+  // course + holes
   $("courseSelect").addEventListener("change", () => {
     updateCourseAndHoleMeta();
     loadNotesForCurrentHole();
@@ -776,14 +936,17 @@ function init() {
     loadNotesForCurrentHole();
   });
 
+  // notes / advice / stats
   $("saveNotesBtn").addEventListener("click", saveNotesForCurrentHole);
   $("getAdviceBtn").addEventListener("click", buildAdvice);
   $("clearShotBtn").addEventListener("click", clearShotInputs);
   $("saveOutcomeBtn").addEventListener("click", saveOutcome);
   $("resetStatsBtn").addEventListener("click", resetStatsForCurrentCourse);
 
+  // mental coach
   $("getMoodBtn").addEventListener("click", buildMoodCue);
 
+  // rounds
   $("startRoundBtn").addEventListener("click", startNewRound);
   $("endRoundBtn").addEventListener("click", endCurrentRound);
 
