@@ -1,5 +1,5 @@
 // Caddie IQ core logic
-// - Profile + avatar customization
+// - Profile + detailed avatar customization
 // - Course + hole notes
 // - Shot advice (rule-based for now)
 // - Simple stats tracking
@@ -98,8 +98,9 @@ function saveJSON(key, value) {
 
 function updateAvatarFromProfile() {
   const avatar = $("avatarCircle");
+  const initialsEl = $("avatarInitials");
   const profile = loadJSON(STORAGE_PROFILE, {});
-  const color = profile.avatarColor || "#22c55e";
+
   const initials = (profile.name || "You")
     .split(" ")
     .filter(Boolean)
@@ -107,23 +108,33 @@ function updateAvatarFromProfile() {
     .slice(0, 2)
     .join("");
 
-  avatar.style.background = color;
-  avatar.textContent = initials || "Y";
-
-  // Tone
-  const tone = profile.avatarTone || "medium";
-  let headColor = "#faccb0";
-  if (tone === "light") headColor = "#fde6c8";
-  if (tone === "dark") headColor = "#b8693d";
-  avatar.style.setProperty("--avatar-head-color", headColor);
-
-  // Hat
-  const hat = profile.avatarHat || "cap";
-  if (hat === "none") {
-    avatar.classList.add("no-hat");
-  } else {
-    avatar.classList.remove("no-hat");
+  if (initialsEl) {
+    initialsEl.textContent = initials || "Y";
   }
+
+  // shirt
+  const shirt = profile.avatarColor || "#22c55e";
+  avatar.style.setProperty("--avatar-shirt", shirt);
+
+  // skin
+  const tone = profile.avatarTone || "medium";
+  let skin = "#faccb0";
+  if (tone === "light") skin = "#fde6c8";
+  if (tone === "dark") skin = "#b8693d";
+  avatar.style.setProperty("--avatar-skin", skin);
+
+  // hair color stays dark for now, but we react to style
+  avatar.style.setProperty("--avatar-hair", "#111827");
+
+  // hair style & hat
+  const hair = profile.avatarHair || "short";
+  const hat = profile.avatarHat || "cap";
+  avatar.dataset.hair = hair;
+  avatar.dataset.hat = hat;
+
+  // scene/background
+  const bg = profile.avatarBg || "classic";
+  avatar.dataset.bg = bg;
 }
 
 function saveProfile() {
@@ -133,7 +144,9 @@ function saveProfile() {
     shape: $("playerShape").value,
     avatarColor: $("avatarColor").value,
     avatarTone: $("avatarTone").value,
-    avatarHat: $("avatarHat").value
+    avatarHat: $("avatarHat").value,
+    avatarHair: $("avatarHair").value,
+    avatarBg: $("avatarBg").value
   };
   saveJSON(STORAGE_PROFILE, profile);
   updateAvatarFromProfile();
@@ -152,6 +165,8 @@ function loadProfileIntoUI() {
   if (p.avatarColor) $("avatarColor").value = p.avatarColor;
   if (p.avatarTone) $("avatarTone").value = p.avatarTone;
   if (p.avatarHat) $("avatarHat").value = p.avatarHat;
+  if (p.avatarHair) $("avatarHair").value = p.avatarHair;
+  if (p.avatarBg) $("avatarBg").value = p.avatarBg;
   updateAvatarFromProfile();
 }
 
@@ -309,7 +324,6 @@ function applyWindAdjustment(distance, strength, direction) {
 
 function buildAdvice() {
   const distRaw = parseFloat($("distanceInput").value || "0");
-  const par = $("parSelect").value;
   const lie = $("lieSelect").value;
   const windStrength = $("windStrength").value;
   const windDirection = $("windDirection").value;
@@ -748,6 +762,8 @@ function init() {
   $("avatarColor").addEventListener("change", saveProfile);
   $("avatarTone").addEventListener("change", saveProfile);
   $("avatarHat").addEventListener("change", saveProfile);
+  $("avatarHair").addEventListener("change", saveProfile);
+  $("avatarBg").addEventListener("change", saveProfile);
 
   $("courseSelect").addEventListener("change", () => {
     updateCourseAndHoleMeta();
