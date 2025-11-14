@@ -1,10 +1,11 @@
 // Caddie IQ core logic
-// - Profile + avatar
+// - Profile + avatar customization
 // - Course + hole notes
 // - Shot advice (rule-based for now)
 // - Simple stats tracking
-// - PWA service worker registration
+// - Mental coach
 // - Theme toggle
+// - PWA service worker registration
 
 // ---- Data ----
 
@@ -105,6 +106,21 @@ function updateAvatarFromProfile() {
 
   avatar.style.background = color;
   avatar.textContent = initials || "Y";
+
+  // Tone
+  const tone = profile.avatarTone || "medium";
+  let headColor = "#faccb0";
+  if (tone === "light") headColor = "#fde6c8";
+  if (tone === "dark") headColor = "#b8693d";
+  avatar.style.setProperty("--avatar-head-color", headColor);
+
+  // Hat
+  const hat = profile.avatarHat || "cap";
+  if (hat === "none") {
+    avatar.classList.add("no-hat");
+  } else {
+    avatar.classList.remove("no-hat");
+  }
 }
 
 function saveProfile() {
@@ -112,7 +128,9 @@ function saveProfile() {
     name: $("playerName").value.trim(),
     handicap: $("playerHandicap").value,
     shape: $("playerShape").value,
-    avatarColor: $("avatarColor").value
+    avatarColor: $("avatarColor").value,
+    avatarTone: $("avatarTone").value,
+    avatarHat: $("avatarHat").value
   };
   saveJSON(STORAGE_PROFILE, profile);
   updateAvatarFromProfile();
@@ -129,6 +147,8 @@ function loadProfileIntoUI() {
   if (p.handicap) $("playerHandicap").value = p.handicap;
   if (p.shape) $("playerShape").value = p.shape;
   if (p.avatarColor) $("avatarColor").value = p.avatarColor;
+  if (p.avatarTone) $("avatarTone").value = p.avatarTone;
+  if (p.avatarHat) $("avatarHat").value = p.avatarHat;
   updateAvatarFromProfile();
 }
 
@@ -497,6 +517,51 @@ function clearShotInputs() {
     '<p class="muted">Enter your distance and context, then tap <strong>Get caddie advice</strong>.</p>';
 }
 
+// ---- Mental coach ----
+
+function buildMoodCue() {
+  const mood = $("moodSelect").value;
+  const out = $("moodOutput");
+
+  let title = "Reset cue";
+  let body =
+    "Deep breath, soft grip, clear target. Let the last shot go and play the one in front of you.";
+  let extra = "";
+
+  if (mood === "nervous") {
+    title = "Settle the nerves";
+    body =
+      "Breathe in for 4, hold for 2, out for 6. Your only job is a smooth, committed swing at a small target.";
+    extra = "Pick a safe target, one club more if needed, and swing at 80% speed.";
+  } else if (mood === "frustrated") {
+    title = "Let it go";
+    body =
+      "You can’t fix past shots. This swing is a fresh start. Soften your grip, unclench your jaw, and commit to tempo.";
+    extra = "Aim at the big side of the fairway or green and just get back in rhythm.";
+  } else if (mood === "overconfident") {
+    title = "Smart aggression";
+    body =
+      "Confidence is good; forcing it is not. Choose the smart target first, then swing freely.";
+    extra = "Ask: ‘If I hit this 8/10 instead of perfect, is it still okay?’ If not, pick a safer line.";
+  } else if (mood === "tired") {
+    title = "Simplify";
+    body =
+      "When you’re tired, your best golf is simple golf. One thought: solid contact.";
+    extra = "Take half a club more, favor the safe side, and keep your body tension low.";
+  } else if (mood === "calm") {
+    title = "Stay in the pocket";
+    body =
+      "You’re in a good place. Keep the same routine: breath, target, smooth swing.";
+    extra = "Stay patient. Good rounds are built on boring, repeatable swings.";
+  }
+
+  out.innerHTML = `
+    <p><strong>${title}</strong></p>
+    <p>${body}</p>
+    <p class="advice-note">${extra}</p>
+  `;
+}
+
 // ---- PWA: service worker ----
 
 function registerSW() {
@@ -540,6 +605,8 @@ function init() {
 
   $("saveProfileBtn").addEventListener("click", saveProfile);
   $("avatarColor").addEventListener("change", saveProfile);
+  $("avatarTone").addEventListener("change", saveProfile);
+  $("avatarHat").addEventListener("change", saveProfile);
 
   $("courseSelect").addEventListener("change", () => {
     updateCourseAndHoleMeta();
@@ -556,6 +623,8 @@ function init() {
   $("clearShotBtn").addEventListener("click", clearShotInputs);
   $("saveOutcomeBtn").addEventListener("click", saveOutcome);
   $("resetStatsBtn").addEventListener("click", resetStatsForCurrentCourse);
+
+  $("getMoodBtn").addEventListener("click", buildMoodCue);
 
   // Theme toggle
   const themeBtn = $("themeToggleBtn");
