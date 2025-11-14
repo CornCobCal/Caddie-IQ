@@ -4,6 +4,7 @@
 // - Shot advice (rule-based for now)
 // - Simple stats tracking
 // - PWA service worker registration
+// - Theme toggle
 
 // ---- Data ----
 
@@ -92,48 +93,26 @@ function saveJSON(key, value) {
 // ---- Profile + avatar ----
 
 function updateAvatarFromProfile() {
-  function updateAvatarFromProfile() {
-  .avatar-circle::before {
-  content: "";
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  top: 8px;
-  background: var(--avatar-head-color, #faccb0);
-}
-
+  const avatar = $("avatarCircle");
+  const profile = loadJSON(STORAGE_PROFILE, {});
+  const color = profile.avatarColor || "#22c55e";
+  const initials = (profile.name || "You")
+    .split(" ")
+    .filter(Boolean)
+    .map((p) => p[0]?.toUpperCase())
+    .slice(0, 2)
+    .join("");
 
   avatar.style.background = color;
   avatar.textContent = initials || "Y";
-
-  // Tone
-  const tone = profile.avatarTone || "medium";
-  let headColor = "#faccb0";
-  if (tone === "light") headColor = "#fde6c8";
-  if (tone === "dark") headColor = "#b8693d";
-
-  avatar.style.setProperty("--avatar-head-color", headColor);
-
-  // Hat
-  const hat = profile.avatarHat || "cap";
-  avatar.dataset.hat = hat;
 }
-.avatar-circle[data-hat="none"]::after {
-  display: none;
-}
-
 
 function saveProfile() {
-    const profile = {
+  const profile = {
     name: $("playerName").value.trim(),
     handicap: $("playerHandicap").value,
     shape: $("playerShape").value,
-    avatarColor: $("avatarColor").value,
-    avatarTone: $("avatarTone").value,
-    avatarHat: $("avatarHat").value
-  };
-
+    avatarColor: $("avatarColor").value
   };
   saveJSON(STORAGE_PROFILE, profile);
   updateAvatarFromProfile();
@@ -152,8 +131,6 @@ function loadProfileIntoUI() {
   if (p.avatarColor) $("avatarColor").value = p.avatarColor;
   updateAvatarFromProfile();
 }
-  if (p.avatarTone) $("avatarTone").value = p.avatarTone;
-  if (p.avatarHat) $("avatarHat").value = p.avatarHat;
 
 // ---- Courses + hole notes ----
 
@@ -486,10 +463,21 @@ function updateStatsSummary() {
   const avgPutts = s.putts ? (s.putts / s.shots).toFixed(1) : "0.0";
 
   el.innerHTML = `
-    Shots tracked today: <strong>${s.shots}</strong><br />
+    Shots tracked: <strong>${s.shots}</strong><br />
     Fairways hit: <strong>${fairwayPct}%</strong> · GIR: <strong>${girPct}%</strong><br />
     Avg putts on recorded holes: <strong>${avgPutts}</strong>
   `;
+}
+
+function resetStatsForCurrentCourse() {
+  const course = getCurrentCourse();
+  if (!course) return;
+  const stats = loadJSON(STORAGE_STATS, {});
+  if (stats[course.id]) {
+    delete stats[course.id];
+    saveJSON(STORAGE_STATS, stats);
+  }
+  updateStatsSummary();
 }
 
 // ---- Shot clear ----
@@ -549,6 +537,26 @@ function init() {
   updateStatsSummary();
   registerSW();
   setupInstallPrompt();
+
+  $("saveProfileBtn").addEventListener("click", saveProfile);
+  $("avatarColor").addEventListener("change", saveProfile);
+
+  $("courseSelect").addEventListener("change", () => {
+    updateCourseAndHoleMeta();
+    loadNotesForCurrentHole();
+    updateStatsSummary();
+  });
+  $("holeSelect").addEventListener("change", () => {
+    updateCourseAndHoleMeta();
+    loadNotesForCurrentHole();
+  });
+
+  $("saveNotesBtn").addEventListener("click", saveNotesForCurrentHole);
+  $("getAdviceBtn").addEventListener("click", buildAdvice);
+  $("clearShotBtn").addEventListener("click", clearShotInputs);
+  $("saveOutcomeBtn").addEventListener("click", saveOutcome);
+  $("resetStatsBtn").addEventListener("click", resetStatsForCurrentCourse);
+
   // Theme toggle
   const themeBtn = $("themeToggleBtn");
   const THEME_KEY = "caddieIQ_theme";
@@ -569,24 +577,6 @@ function init() {
     const next = current === "auto" ? "light" : current === "light" ? "dark" : "auto";
     applyTheme(next);
   });
-
-  $("saveProfileBtn").addEventListener("click", saveProfile);
-  $("avatarColor").addEventListener("change", saveProfile);
-
-  $("courseSelect").addEventListener("change", () => {
-    updateCourseAndHoleMeta();
-    loadNotesForCurrentHole();
-    updateStatsSummary();
-  });
-  $("holeSelect").addEventListener("change", () => {
-    updateCourseAndHoleMeta();
-    loadNotesForCurrentHole();
-  });
-
-  $("saveNotesBtn").addEventListener("click", saveNotesForCurrentHole);
-  $("getAdviceBtn").addEventListener("click", buildAdvice);
-  $("clearShotBtn").addEventListener("click", clearShotInputs);
-  $("saveOutcomeBtn").addEventListener("click", saveOutcome);
 }
 
 document.addEventListener("DOMContentLoaded", init);
