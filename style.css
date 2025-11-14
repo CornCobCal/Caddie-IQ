@@ -84,6 +84,11 @@ body {
   border-bottom: 1px solid var(--border-subtle);
   background: linear-gradient(135deg, var(--bg-elevated), var(--bg-soft));
 }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
 .logo-lockup {
   display: flex;
