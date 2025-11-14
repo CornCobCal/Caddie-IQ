@@ -262,6 +262,32 @@ body {
 }
 
 /* Avatar */
+.avatar-circle {
+  position: relative;
+}
+
+/* "Head" */
+.avatar-circle::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  top: 8px;
+  background: #faccb0; /* default, JS will tweak tone */
+}
+
+/* "Hat" */
+.avatar-circle::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  width: 22px;
+  height: 10px;
+  border-radius: 999px 999px 6px 6px;
+  background: rgba(15, 23, 42, 0.9);
+  transform: translateY(-3px);
+}
 
 .avatar-circle {
   flex: 0 0 52px;
