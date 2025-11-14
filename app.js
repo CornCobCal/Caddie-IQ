@@ -93,15 +93,16 @@ function saveJSON(key, value) {
 
 function updateAvatarFromProfile() {
   function updateAvatarFromProfile() {
-  const avatar = $("avatarCircle");
-  const profile = loadJSON(STORAGE_PROFILE, {});
-  const color = profile.avatarColor || "#22c55e";
-  const initials = (profile.name || "You")
-    .split(" ")
-    .filter(Boolean)
-    .map((p) => p[0]?.toUpperCase())
-    .slice(0, 2)
-    .join("");
+  .avatar-circle::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  top: 8px;
+  background: var(--avatar-head-color, #faccb0);
+}
+
 
   avatar.style.background = color;
   avatar.textContent = initials || "Y";
