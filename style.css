@@ -17,6 +17,7 @@
   --radius-pill: 999px;
   --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+
 /* Explicit theme overrides when user picks a mode */
 :root[data-theme="light"] {
   color-scheme: light;
@@ -26,9 +27,9 @@
   color-scheme: dark;
 }
 
-/* Dark mode overrides */
+/* Dark mode overrides (for auto mode) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #020617;
     --bg-elevated: #020617;
     --bg-soft: #020617;
@@ -44,10 +45,20 @@
   }
 }
 
+/* Global */
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+* {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 html,
@@ -58,9 +69,6 @@ body {
   font-family: var(--font-main);
   background: radial-gradient(circle at top, #1e293b, var(--bg));
   color: var(--text-main);
-}
-* {
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 body {
@@ -91,11 +99,6 @@ body {
   padding: 12px 18px;
   border-bottom: 1px solid var(--border-subtle);
   background: linear-gradient(135deg, var(--bg-elevated), var(--bg-soft));
-}
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .logo-lockup {
@@ -140,6 +143,12 @@ body {
 .logo-subtitle {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Layout */
@@ -212,7 +221,6 @@ body {
   background: var(--bg-elevated);
   color: var(--text-main);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .field textarea {
@@ -262,32 +270,6 @@ body {
 }
 
 /* Avatar */
-.avatar-circle {
-  position: relative;
-}
-
-/* "Head" */
-.avatar-circle::before {
-  content: "";
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  top: 8px;
-  background: #faccb0; /* default, JS will tweak tone */
-}
-
-/* "Hat" */
-.avatar-circle::after {
-  content: "";
-  position: absolute;
-  top: 6px;
-  width: 22px;
-  height: 10px;
-  border-radius: 999px 999px 6px 6px;
-  background: rgba(15, 23, 42, 0.9);
-  transform: translateY(-3px);
-}
 
 .avatar-circle {
   flex: 0 0 52px;
@@ -317,8 +299,6 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease,
-    border-color 0.12s ease;
 }
 
 .btn.primary {
@@ -471,4 +451,3 @@ body {
     padding: 10px;
   }
 }
-
