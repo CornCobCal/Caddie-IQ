@@ -72,16 +72,33 @@
             </div>
           </div>
           <div class="profile-row profile-row-bottom">
-            <label class="field compact">
-              <span>Avatar color</span>
-              <select id="avatarColor">
-                <option value="#22c55e">Green</option>
-                <option value="#0ea5e9">Blue</option>
-                <option value="#f97316">Orange</option>
-                <option value="#e11d48">Red</option>
-                <option value="#a855f7">Purple</option>
-              </select>
-            </label>
+            <div class="grid three">
+              <label class="field compact">
+                <span>Avatar tone</span>
+                <select id="avatarTone">
+                  <option value="light">Light</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </label>
+              <label class="field compact">
+                <span>Shirt color</span>
+                <select id="avatarColor">
+                  <option value="#22c55e">Green</option>
+                  <option value="#0ea5e9">Blue</option>
+                  <option value="#f97316">Orange</option>
+                  <option value="#e11d48">Red</option>
+                  <option value="#a855f7">Purple</option>
+                </select>
+              </label>
+              <label class="field compact">
+                <span>Hat</span>
+                <select id="avatarHat">
+                  <option value="none">No hat</option>
+                  <option value="cap" selected>Cap</option>
+                </select>
+              </label>
+            </div>
             <button id="saveProfileBtn" class="btn secondary small" type="button">
               Save profile
             </button>
@@ -143,7 +160,7 @@
         </section>
       </section>
 
-      <!-- RIGHT: Shot + Advice + Quick Stats -->
+      <!-- RIGHT: Shot + Advice + Quick Stats + Mental Coach -->
       <section class="column">
         <!-- Current shot -->
         <section class="card">
@@ -279,6 +296,34 @@
 
           <div id="statsSummary" class="stats-summary muted small">
             No stats saved yet for this course today.
+          </div>
+        </section>
+
+        <!-- Mental coach -->
+        <section class="card">
+          <h2 class="section-title">Mental coach</h2>
+
+          <div class="grid two">
+            <label class="field">
+              <span>Right now I feel...</span>
+              <select id="moodSelect">
+                <option value="calm">Pretty calm</option>
+                <option value="nervous">A bit nervous</option>
+                <option value="frustrated">Frustrated / angry</option>
+                <option value="overconfident">Overconfident</option>
+                <option value="tired">Tired / low energy</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="card-footer">
+            <button id="getMoodBtn" class="btn primary small" type="button">
+              Get mental cue
+            </button>
+          </div>
+
+          <div id="moodOutput" class="advice muted small">
+            Use this when you need to reset between shots.
           </div>
         </section>
       </section>
