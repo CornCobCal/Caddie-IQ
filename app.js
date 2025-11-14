@@ -92,6 +92,7 @@ function saveJSON(key, value) {
 // ---- Profile + avatar ----
 
 function updateAvatarFromProfile() {
+  function updateAvatarFromProfile() {
   const avatar = $("avatarCircle");
   const profile = loadJSON(STORAGE_PROFILE, {});
   const color = profile.avatarColor || "#22c55e";
@@ -104,7 +105,20 @@ function updateAvatarFromProfile() {
 
   avatar.style.background = color;
   avatar.textContent = initials || "Y";
+
+  // Tone
+  const tone = profile.avatarTone || "medium";
+  let headColor = "#faccb0";
+  if (tone === "light") headColor = "#fde6c8";
+  if (tone === "dark") headColor = "#b8693d";
+
+  avatar.style.setProperty("--avatar-head-color", headColor);
+
+  // Hat
+  const hat = profile.avatarHat || "cap";
+  avatar.dataset.hat = hat;
 }
+
 
 function saveProfile() {
     const profile = {
