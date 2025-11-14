@@ -76,20 +76,38 @@
             </div>
           </div>
           <div class="profile-row profile-row-bottom">
-            <label class="field compact">
-              <span>Avatar color</span>
-              <select id="avatarColor">
-                <option value="#22c55e">Green</option>
-                <option value="#0ea5e9">Blue</option>
-                <option value="#f97316">Orange</option>
-                <option value="#e11d48">Red</option>
-                <option value="#a855f7">Purple</option>
-              </select>
-            </label>
-            <button id="saveProfileBtn" class="btn secondary small" type="button">
-              Save profile
-            </button>
-          </div>
+  <div class="grid three">
+    <label class="field compact">
+      <span>Avatar tone</span>
+      <select id="avatarTone">
+        <option value="light">Light</option>
+        <option value="medium" selected>Medium</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
+    <label class="field compact">
+      <span>Shirt color</span>
+      <select id="avatarColor">
+        <option value="#22c55e">Green</option>
+        <option value="#0ea5e9">Blue</option>
+        <option value="#f97316">Orange</option>
+        <option value="#e11d48">Red</option>
+        <option value="#a855f7">Purple</option>
+      </select>
+    </label>
+    <label class="field compact">
+      <span>Hat</span>
+      <select id="avatarHat">
+        <option value="none">No hat</option>
+        <option value="cap" selected>Cap</option>
+      </select>
+    </label>
+  </div>
+  <button id="saveProfileBtn" class="btn secondary small" type="button">
+    Save profile
+  </button>
+</div>
+
         </section>
 
         <!-- Course + hole -->
