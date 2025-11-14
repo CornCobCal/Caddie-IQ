@@ -17,6 +17,14 @@
   --radius-pill: 999px;
   --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+/* Explicit theme overrides when user picks a mode */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
 
 /* Dark mode overrides */
 @media (prefers-color-scheme: dark) {
