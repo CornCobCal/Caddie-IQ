@@ -525,6 +525,26 @@ function init() {
   updateStatsSummary();
   registerSW();
   setupInstallPrompt();
+  // Theme toggle
+  const themeBtn = $("themeToggleBtn");
+  const THEME_KEY = "caddieIQ_theme";
+  const savedTheme = localStorage.getItem(THEME_KEY) || "auto";
+
+  function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem(THEME_KEY, theme);
+    if (theme === "light") themeBtn.textContent = "Theme: Light";
+    else if (theme === "dark") themeBtn.textContent = "Theme: Dark";
+    else themeBtn.textContent = "Theme: Auto";
+  }
+
+  applyTheme(savedTheme);
+
+  themeBtn.addEventListener("click", () => {
+    const current = document.documentElement.dataset.theme || "auto";
+    const next = current === "auto" ? "light" : current === "light" ? "dark" : "auto";
+    applyTheme(next);
+  });
 
   $("saveProfileBtn").addEventListener("click", saveProfile);
   $("avatarColor").addEventListener("change", saveProfile);
