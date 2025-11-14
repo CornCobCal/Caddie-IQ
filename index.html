@@ -38,7 +38,15 @@
         <section class="card">
           <h2 class="section-title">Player profile</h2>
           <div class="profile-row">
-            <div class="avatar-circle" id="avatarCircle"></div>
+            <div class="avatar-wrapper">
+              <div class="avatar-circle" id="avatarCircle">
+                <div class="avatar-figure"></div>
+                <div class="avatar-initials" id="avatarInitials"></div>
+              </div>
+              <p class="avatar-hint small muted">
+                Customize your golfer’s look below.
+              </p>
+            </div>
             <div class="profile-fields">
               <label class="field">
                 <span>Name</span>
@@ -74,7 +82,7 @@
           <div class="profile-row profile-row-bottom">
             <div class="grid three">
               <label class="field compact">
-                <span>Avatar tone</span>
+                <span>Skin tone</span>
                 <select id="avatarTone">
                   <option value="light">Light</option>
                   <option value="medium" selected>Medium</option>
@@ -84,9 +92,9 @@
               <label class="field compact">
                 <span>Shirt color</span>
                 <select id="avatarColor">
-                  <option value="#22c55e">Green</option>
-                  <option value="#0ea5e9">Blue</option>
-                  <option value="#f97316">Orange</option>
+                  <option value="#22c55e">Tour green</option>
+                  <option value="#0ea5e9">Sky blue</option>
+                  <option value="#f97316">Sunset orange</option>
                   <option value="#e11d48">Red</option>
                   <option value="#a855f7">Purple</option>
                 </select>
@@ -99,9 +107,34 @@
                 </select>
               </label>
             </div>
-            <button id="saveProfileBtn" class="btn secondary small" type="button">
-              Save profile
-            </button>
+          </div>
+          <div class="profile-row profile-row-bottom">
+            <div class="grid three">
+              <label class="field compact">
+                <span>Hair</span>
+                <select id="avatarHair">
+                  <option value="shaved">Shaved</option>
+                  <option value="short" selected>Short</option>
+                  <option value="medium">Medium</option>
+                  <option value="long">Long</option>
+                </select>
+              </label>
+              <label class="field compact">
+                <span>Scene</span>
+                <select id="avatarBg">
+                  <option value="classic" selected>Classic course</option>
+                  <option value="sunset">Sunset round</option>
+                  <option value="night">Night golf</option>
+                  <option value="range">Driving range</option>
+                </select>
+              </label>
+              <div class="field compact">
+                <span>&nbsp;</span>
+                <button id="saveProfileBtn" class="btn secondary small" type="button">
+                  Save profile
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
