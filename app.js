@@ -119,6 +119,9 @@ function updateAvatarFromProfile() {
   const hat = profile.avatarHat || "cap";
   avatar.dataset.hat = hat;
 }
+.avatar-circle[data-hat="none"]::after {
+  display: none;
+}
 
 
 function saveProfile() {
