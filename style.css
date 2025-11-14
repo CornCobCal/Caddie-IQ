@@ -440,6 +440,21 @@ body {
   line-height: 1.4;
 }
 
+/* Rounds */
+
+.round-status {
+  margin-top: 4px;
+}
+
+.round-history {
+  margin-top: 8px;
+}
+
+.round-history-item {
+  padding: 4px 0;
+  border-top: 1px dashed var(--border-subtle);
+}
+
 /* Divider */
 
 .divider {
