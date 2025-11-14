@@ -18,7 +18,7 @@
         <div class="logo-icon" aria-hidden="true"></div>
         <div class="logo-text">
           <div class="logo-title">Caddie IQ</div>
-          <div class="logo-subtitle">Your personal golf caddie, anywhere.</div>
+          <div class="logo-subtitle">Play smarter, feel calmer, love your round.</div>
         </div>
       </div>
       <div class="header-actions">
@@ -32,11 +32,14 @@
     </header>
 
     <main class="app-main">
-      <!-- LEFT: Player + Course -->
+      <!-- LEFT: Player + Bag + Course -->
       <section class="column">
         <!-- Player / avatar card -->
         <section class="card">
-          <h2 class="section-title">Player profile</h2>
+          <h2 class="section-title">Your golfer</h2>
+          <p class="small muted" style="margin-top:-4px;margin-bottom:6px;">
+            Set up your Caddie IQ persona so the app feels like it’s walking the fairway with you.
+          </p>
           <div class="profile-row">
             <div class="avatar-wrapper">
               <div class="avatar-circle" id="avatarCircle">
@@ -44,37 +47,37 @@
                 <div class="avatar-initials" id="avatarInitials"></div>
               </div>
               <p class="avatar-hint small muted">
-                Customize your golfer’s look below.
+                Skin, hair, hat, and scene all update live.
               </p>
             </div>
             <div class="profile-fields">
               <label class="field">
                 <span>Name</span>
-                <input id="playerName" type="text" placeholder="Your name" />
+                <input id="playerName" type="text" placeholder="How do you like to be called?" />
               </label>
 
               <label class="field">
                 <span>Handicap / index</span>
                 <select id="playerHandicap">
-                  <option value="">Just for fun</option>
-                  <option value="25">25+ (new golfer)</option>
-                  <option value="18">18–24</option>
-                  <option value="12">12–17</option>
-                  <option value="8">8–11</option>
-                  <option value="4">4–7</option>
+                  <option value="">Just out here to have fun</option>
+                  <option value="25">25+ · New to the game</option>
+                  <option value="18">18–24 · Casual player</option>
+                  <option value="12">12–17 · Solid weekend golfer</option>
+                  <option value="8">8–11 · Competitive</option>
+                  <option value="4">4–7 · Low handicap</option>
                   <option value="0">Scratch / better</option>
                 </select>
               </label>
 
               <label class="field">
-                <span>Typical shot shape</span>
+                <span>Typical ball flight</span>
                 <select id="playerShape">
-                  <option value="">Not sure</option>
+                  <option value="">It depends on the day</option>
                   <option value="fade">Fade</option>
                   <option value="draw">Draw</option>
-                  <option value="straight">Straight-ish</option>
-                  <option value="slice">Slice</option>
-                  <option value="hook">Hook</option>
+                  <option value="straight">Pretty straight</option>
+                  <option value="slice">Big slice</option>
+                  <option value="hook">Big hook</option>
                 </select>
               </label>
             </div>
@@ -103,7 +106,7 @@
                 <span>Hat</span>
                 <select id="avatarHat">
                   <option value="none">No hat</option>
-                  <option value="cap" selected>Cap</option>
+                  <option value="cap" selected>Clean tour cap</option>
                 </select>
               </label>
             </div>
@@ -114,33 +117,93 @@
                 <span>Hair</span>
                 <select id="avatarHair">
                   <option value="shaved">Shaved</option>
-                  <option value="short" selected>Short</option>
+                  <option value="short" selected>Short & neat</option>
                   <option value="medium">Medium</option>
-                  <option value="long">Long</option>
+                  <option value="long">Long flow</option>
                 </select>
               </label>
               <label class="field compact">
-                <span>Scene</span>
+                <span>Course vibe</span>
                 <select id="avatarBg">
-                  <option value="classic" selected>Classic course</option>
-                  <option value="sunset">Sunset round</option>
-                  <option value="night">Night golf</option>
-                  <option value="range">Driving range</option>
+                  <option value="classic" selected>Classic morning round</option>
+                  <option value="sunset">Golden hour</option>
+                  <option value="night">Under the lights</option>
+                  <option value="range">Night range grind</option>
                 </select>
               </label>
               <div class="field compact">
                 <span>&nbsp;</span>
                 <button id="saveProfileBtn" class="btn secondary small" type="button">
-                  Save profile
+                  Save golfer profile
                 </button>
               </div>
             </div>
           </div>
         </section>
 
+        <!-- What's in my bag -->
+        <section class="card">
+          <h2 class="section-title">What’s in my bag</h2>
+          <p class="small muted" style="margin-top:-4px;margin-bottom:6px;">
+            Lock in your real yardages so Caddie IQ recommends clubs like a caddie who knows your game.
+          </p>
+
+          <div class="grid three">
+            <label class="field compact">
+              <span>Club</span>
+              <select id="bagClub">
+                <option value="">Choose a club</option>
+                <option value="driver">Driver</option>
+                <option value="3w">3 wood</option>
+                <option value="5w">5 wood</option>
+                <option value="2h">2 hybrid</option>
+                <option value="3h">3 hybrid</option>
+                <option value="4h">4 hybrid</option>
+                <option value="4i">4 iron</option>
+                <option value="5i">5 iron</option>
+                <option value="6i">6 iron</option>
+                <option value="7i">7 iron</option>
+                <option value="8i">8 iron</option>
+                <option value="9i">9 iron</option>
+                <option value="pw">Pitching wedge</option>
+                <option value="gw">Gap wedge</option>
+                <option value="sw">Sand wedge</option>
+                <option value="lw">Lob wedge</option>
+                <option value="putter">Putter</option>
+              </select>
+            </label>
+
+            <label class="field compact">
+              <span>Comfort carry (yds)</span>
+              <input id="bagCarry" type="number" min="10" max="400" placeholder="e.g. 152" />
+            </label>
+
+            <label class="field compact">
+              <span>Notes</span>
+              <input id="bagNote" type="text" placeholder="e.g. go-to fairway finder" />
+            </label>
+          </div>
+
+          <div class="card-footer">
+            <button id="bagClearBtn" class="btn ghost small" type="button">
+              Clear fields
+            </button>
+            <button id="bagSaveBtn" class="btn primary small" type="button">
+              Save / update club
+            </button>
+          </div>
+
+          <div id="bagList" class="bag-list small muted">
+            No clubs saved yet. Add your first club above.
+          </div>
+        </section>
+
         <!-- Course + hole -->
         <section class="card">
-          <h2 class="section-title">Course &amp; hole</h2>
+          <h2 class="section-title">Today’s course &amp; hole</h2>
+          <p class="small muted" style="margin-top:-4px;margin-bottom:6px;">
+            Tell Caddie IQ where you’re playing so notes and targets are stored hole by hole.
+          </p>
           <div class="grid two">
             <label class="field">
               <span>Course</span>
@@ -157,37 +220,37 @@
 
           <hr class="divider" />
 
-          <h3 class="section-subtitle">Your notes for this hole</h3>
+          <h3 class="section-subtitle">Game plan for this hole</h3>
 
           <div class="grid two">
             <label class="field">
-              <span>Preferred club</span>
-              <input id="preferredClub" type="text" placeholder="e.g. 3W off the tee" />
+              <span>Preferred club off the tee</span>
+              <input id="preferredClub" type="text" placeholder="e.g. 3W to stay short of trouble" />
             </label>
             <label class="field">
-              <span>Typical miss</span>
-              <input id="usualMiss" type="text" placeholder="e.g. short-right, pull left" />
+              <span>Your common miss here</span>
+              <input id="usualMiss" type="text" placeholder="e.g. long-left, short-right" />
             </label>
           </div>
 
           <label class="field">
             <span>Safe target</span>
-            <textarea id="safeTarget" placeholder="e.g. Aim at right bunker, let it draw back."></textarea>
+            <textarea id="safeTarget" placeholder="e.g. Middle of green, 10 yards right of the pin."></textarea>
           </label>
 
           <label class="field">
             <span>Danger zone</span>
-            <textarea id="dangerNote" placeholder="e.g. Long left is dead, anything short is okay."></textarea>
+            <textarea id="dangerNote" placeholder="e.g. Long left is dead, anything front is fine."></textarea>
           </label>
 
           <label class="field">
-            <span>Mental cue</span>
-            <textarea id="mentalCue" placeholder="e.g. Smooth tempo, one clear target."></textarea>
+            <span>Mental cue for this hole</span>
+            <textarea id="mentalCue" placeholder="e.g. Smooth tempo, stay tall, finish your turn."></textarea>
           </label>
 
           <div class="card-footer">
             <button id="saveNotesBtn" class="btn ghost small" type="button">
-              Save notes for this hole
+              Save hole plan
             </button>
           </div>
         </section>
@@ -197,7 +260,10 @@
       <section class="column">
         <!-- Current shot -->
         <section class="card">
-          <h2 class="section-title">Current shot</h2>
+          <h2 class="section-title">This shot</h2>
+          <p class="small muted" style="margin-top:-4px;margin-bottom:6px;">
+            Distance, lie, wind, and trouble. Caddie IQ turns it into a simple, confident plan.
+          </p>
           <div class="grid three">
             <label class="field">
               <span>Par</span>
@@ -209,18 +275,18 @@
             </label>
 
             <label class="field">
-              <span>Distance (yds)</span>
-              <input id="distanceInput" type="number" min="1" max="800" placeholder="152" />
+              <span>Distance to target (yds)</span>
+              <input id="distanceInput" type="number" min="1" max="800" placeholder="e.g. 152" />
             </label>
 
             <label class="field">
               <span>Lie</span>
               <select id="lieSelect">
-                <option value="tee">Tee</option>
+                <option value="tee">Tee box</option>
                 <option value="fairway" selected>Fairway</option>
                 <option value="rough">Rough</option>
                 <option value="sand">Sand</option>
-                <option value="other">Other</option>
+                <option value="other">Other / tricky</option>
               </select>
             </label>
           </div>
@@ -229,18 +295,18 @@
             <label class="field">
               <span>Wind</span>
               <select id="windStrength">
-                <option value="none" selected>None</option>
-                <option value="light">Light</option>
-                <option value="medium">Medium</option>
-                <option value="strong">Strong</option>
+                <option value="none" selected>Calm</option>
+                <option value="light">Light breeze</option>
+                <option value="medium">Steady wind</option>
+                <option value="strong">Heavy wind</option>
               </select>
             </label>
 
             <label class="field">
               <span>Wind direction</span>
               <select id="windDirection">
-                <option value="none" selected>No real effect</option>
-                <option value="into">Into wind</option>
+                <option value="none" selected>Not a big factor</option>
+                <option value="into">Into the wind</option>
                 <option value="with">Downwind</option>
                 <option value="cross-left">Left to right</option>
                 <option value="cross-right">Right to left</option>
@@ -252,44 +318,47 @@
             <span>Hazards in play</span>
             <div class="hazard-row">
               <label class="hazard-chip">
-                <input id="hazLeft" type="checkbox" /> Left trouble
+                <input id="hazLeft" type="checkbox" /> Trouble left
               </label>
               <label class="hazard-chip">
-                <input id="hazRight" type="checkbox" /> Right trouble
+                <input id="hazRight" type="checkbox" /> Trouble right
               </label>
               <label class="hazard-chip">
-                <input id="hazShort" type="checkbox" /> Short trouble
+                <input id="hazShort" type="checkbox" /> Short is bad
               </label>
               <label class="hazard-chip">
-                <input id="hazLong" type="checkbox" /> Long trouble
+                <input id="hazLong" type="checkbox" /> Long is bad
               </label>
             </div>
           </label>
 
           <div class="card-footer">
             <button id="clearShotBtn" class="btn ghost small" type="button">
-              Clear
+              Reset shot
             </button>
-            <button id="getAdviceBtn" class="btn primary" type="button">
-              Get caddie advice
+            <button id="getAdviceBtn" class="btn primary small" type="button">
+              Build my caddie plan
             </button>
           </div>
         </section>
 
         <!-- Advice -->
         <section class="card">
-          <h2 class="section-title">Caddie advice</h2>
+          <h2 class="section-title">Caddie IQ plan</h2>
           <div id="adviceContent" class="advice">
             <p class="muted">
-              Enter your distance and context, then tap
-              <strong>Get caddie advice</strong>.
+              Drop in a distance and a little context, then tap
+              <strong>Build my caddie plan</strong> to get a clear target and club idea.
             </p>
           </div>
         </section>
 
         <!-- Quick outcome / stats -->
         <section class="card">
-          <h2 class="section-title">Shot outcome (quick stats)</h2>
+          <h2 class="section-title">Shot results &amp; quick stats</h2>
+          <p class="small muted" style="margin-top:-4px;margin-bottom:6px;">
+            Track a few key numbers each hole and watch your patterns appear.
+          </p>
 
           <div class="grid three">
             <label class="field">
@@ -313,17 +382,17 @@
             </label>
 
             <label class="field">
-              <span>Putts</span>
-              <input id="outcomePutts" type="number" min="0" max="6" placeholder="2" />
+              <span>Putts on this hole</span>
+              <input id="outcomePutts" type="number" min="0" max="6" placeholder="e.g. 2" />
             </label>
           </div>
 
           <div class="card-footer">
             <button id="resetStatsBtn" class="btn ghost small" type="button">
-              Reset stats for this course
+              Clear stats for this course
             </button>
             <button id="saveOutcomeBtn" class="btn secondary small" type="button">
-              Save outcome
+              Save this hole
             </button>
           </div>
 
@@ -334,9 +403,12 @@
 
         <!-- Round summary -->
         <section class="card">
-          <h2 class="section-title">Round summary</h2>
+          <h2 class="section-title">Today’s round snapshot</h2>
+          <p class="small muted" style="margin-top:-4px;margin-bottom:6px;">
+            Start a round when you tee off, then just play. Caddie IQ keeps a quiet scorecard in the background.
+          </p>
           <div id="roundStatus" class="round-status small">
-            No active round. Select a course and tap <strong>Start new round</strong> when you tee off.
+            No active round. Choose your course and tap <strong>Start new round</strong> when you hit your first tee shot.
           </div>
 
           <div class="card-footer">
@@ -356,15 +428,18 @@
         <!-- Mental coach -->
         <section class="card">
           <h2 class="section-title">Mental coach</h2>
+          <p class="small muted" style="margin-top:-4px;margin-bottom:6px;">
+            Quick reset buttons for the six inches between your ears.
+          </p>
 
           <div class="grid two">
             <label class="field">
               <span>Right now I feel...</span>
               <select id="moodSelect">
-                <option value="calm">Pretty calm</option>
-                <option value="nervous">A bit nervous</option>
-                <option value="frustrated">Frustrated / angry</option>
-                <option value="overconfident">Overconfident</option>
+                <option value="calm">Pretty calm and steady</option>
+                <option value="nervous">A bit nervous / tight</option>
+                <option value="frustrated">Frustrated / tilted</option>
+                <option value="overconfident">Overconfident / forcing it</option>
                 <option value="tired">Tired / low energy</option>
               </select>
             </label>
@@ -372,19 +447,19 @@
 
           <div class="card-footer">
             <button id="getMoodBtn" class="btn primary small" type="button">
-              Get mental cue
+              Give me a reset cue
             </button>
           </div>
 
           <div id="moodOutput" class="advice muted small">
-            Use this when you need to reset between shots.
+            Use this between shots or on the next tee box when you need a little reset.
           </div>
         </section>
       </section>
     </main>
 
     <footer class="app-footer">
-      <span>Caddie IQ · Personal golf caddie &amp; coach</span>
+      <span>Caddie IQ · Imagine your best golf, one shot at a time.</span>
     </footer>
   </div>
 
