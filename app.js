@@ -3,6 +3,7 @@
 // - Course + hole notes
 // - Shot advice (rule-based for now)
 // - Simple stats tracking
+// - Round summary + history
 // - Mental coach
 // - Theme toggle
 // - PWA service worker registration
@@ -66,6 +67,8 @@ const sampleCourses = [
 const STORAGE_PROFILE = "caddieIQ_profile_v1";
 const STORAGE_NOTES = "caddieIQ_notes_v1";
 const STORAGE_STATS = "caddieIQ_stats_v1";
+const STORAGE_ROUNDS = "caddieIQ_rounds_v1";
+const STORAGE_ACTIVE_ROUND = "caddieIQ_activeRound_v1";
 
 // ---- Helpers ----
 
@@ -462,6 +465,9 @@ function saveOutcome() {
 
   saveJSON(STORAGE_STATS, stats);
   updateStatsSummary();
+
+  // Also update current round, if one is active for this course
+  updateRoundFromOutcome(tee, gir, puttsVal);
 }
 
 function updateStatsSummary() {
@@ -498,6 +504,140 @@ function resetStatsForCurrentCourse() {
     saveJSON(STORAGE_STATS, stats);
   }
   updateStatsSummary();
+}
+
+// ---- Rounds (summary + history) ----
+
+function getRounds() {
+  return loadJSON(STORAGE_ROUNDS, []);
+}
+
+function saveRounds(rounds) {
+  saveJSON(STORAGE_ROUNDS, rounds);
+}
+
+function getActiveRoundId() {
+  return localStorage.getItem(STORAGE_ACTIVE_ROUND);
+}
+
+function setActiveRoundId(id) {
+  if (id) {
+    localStorage.setItem(STORAGE_ACTIVE_ROUND, id);
+  } else {
+    localStorage.removeItem(STORAGE_ACTIVE_ROUND);
+  }
+}
+
+function getActiveRound() {
+  const id = getActiveRoundId();
+  if (!id) return null;
+  const rounds = getRounds();
+  return rounds.find((r) => r.id === id && !r.finished) || null;
+}
+
+function startNewRound() {
+  const course = getCurrentCourse();
+  if (!course) return;
+
+  const rounds = getRounds();
+  const id = "round-" + Date.now();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const round = {
+    id,
+    courseId: course.id,
+    courseName: course.name,
+    date: today,
+    shots: 0,
+    fairways: 0,
+    gir: 0,
+    putts: 0,
+    finished: false
+  };
+
+  rounds.push(round);
+  saveRounds(rounds);
+  setActiveRoundId(id);
+  updateRoundUI();
+}
+
+function endCurrentRound() {
+  const id = getActiveRoundId();
+  const rounds = getRounds();
+  if (!id) {
+    updateRoundUI();
+    return;
+  }
+
+  const idx = rounds.findIndex((r) => r.id === id);
+  if (idx !== -1) {
+    rounds[idx].finished = true;
+    saveRounds(rounds);
+  }
+  setActiveRoundId(null);
+  updateRoundUI();
+}
+
+function updateRoundFromOutcome(tee, gir, puttsVal) {
+  const active = getActiveRound();
+  const course = getCurrentCourse();
+  if (!active || !course || active.courseId !== course.id) return;
+
+  const rounds = getRounds();
+  const idx = rounds.findIndex((r) => r.id === active.id);
+  if (idx === -1) return;
+
+  const r = rounds[idx];
+  r.shots += 1;
+  if (tee === "fairway") r.fairways += 1;
+  if (gir === "yes") r.gir += 1;
+  if (puttsVal > 0) r.putts += puttsVal;
+  rounds[idx] = r;
+  saveRounds(rounds);
+  updateRoundUI();
+}
+
+function updateRoundUI() {
+  const statusEl = $("roundStatus");
+  const historyEl = $("roundHistory");
+  const rounds = getRounds();
+  const activeId = getActiveRoundId();
+  const active = rounds.find((r) => r.id === activeId && !r.finished);
+
+  if (!active) {
+    statusEl.innerHTML =
+      'No active round. Select a course and tap <strong>Start new round</strong> when you tee off.';
+  } else {
+    const fairwayPct = active.shots ? Math.round((active.fairways / active.shots) * 100) : 0;
+    const girPct = active.shots ? Math.round((active.gir / active.shots) * 100) : 0;
+    const avgPutts = active.shots ? (active.putts / active.shots).toFixed(1) : "0.0";
+
+    statusEl.innerHTML = `
+      Active round: <strong>${active.courseName}</strong> (${active.date})<br />
+      Holes tracked: <strong>${active.shots}</strong> · FW: <strong>${fairwayPct}%</strong> · GIR: <strong>${girPct}%</strong> · Avg putts: <strong>${avgPutts}</strong>
+    `;
+  }
+
+  const completed = rounds.filter((r) => r.finished).slice(-5).reverse();
+
+  if (!completed.length) {
+    historyEl.textContent = "No completed rounds yet. End a round to see it here.";
+    return;
+  }
+
+  historyEl.innerHTML = completed
+    .map((r) => {
+      const fairwayPct = r.shots ? Math.round((r.fairways / r.shots) * 100) : 0;
+      const girPct = r.shots ? Math.round((r.gir / r.shots) * 100) : 0;
+      const avgPutts = r.shots ? (r.putts / r.shots).toFixed(1) : "0.0";
+      return `
+        <div class="round-history-item">
+          <strong>${r.courseName}</strong> · ${r.date}<br />
+          Holes: <strong>${r.shots}</strong> · FW: <strong>${fairwayPct}%</strong> · GIR: <strong>${girPct}%</strong> · Avg putts: <strong>${avgPutts}</strong>
+        </div>
+      `;
+    })
+    .join("");
 }
 
 // ---- Shot clear ----
@@ -600,6 +740,7 @@ function init() {
   updateCourseAndHoleMeta();
   loadNotesForCurrentHole();
   updateStatsSummary();
+  updateRoundUI();
   registerSW();
   setupInstallPrompt();
 
@@ -612,6 +753,7 @@ function init() {
     updateCourseAndHoleMeta();
     loadNotesForCurrentHole();
     updateStatsSummary();
+    updateRoundUI();
   });
   $("holeSelect").addEventListener("change", () => {
     updateCourseAndHoleMeta();
@@ -625,6 +767,9 @@ function init() {
   $("resetStatsBtn").addEventListener("click", resetStatsForCurrentCourse);
 
   $("getMoodBtn").addEventListener("click", buildMoodCue);
+
+  $("startRoundBtn").addEventListener("click", startNewRound);
+  $("endRoundBtn").addEventListener("click", endCurrentRound);
 
   // Theme toggle
   const themeBtn = $("themeToggleBtn");
