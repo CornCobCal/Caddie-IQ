@@ -134,6 +134,8 @@ function loadProfileIntoUI() {
   if (p.avatarColor) $("avatarColor").value = p.avatarColor;
   updateAvatarFromProfile();
 }
+  if (p.avatarTone) $("avatarTone").value = p.avatarTone;
+  if (p.avatarHat) $("avatarHat").value = p.avatarHat;
 
 // ---- Courses + hole notes ----
 
