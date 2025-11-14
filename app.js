@@ -107,11 +107,15 @@ function updateAvatarFromProfile() {
 }
 
 function saveProfile() {
-  const profile = {
+    const profile = {
     name: $("playerName").value.trim(),
     handicap: $("playerHandicap").value,
     shape: $("playerShape").value,
-    avatarColor: $("avatarColor").value
+    avatarColor: $("avatarColor").value,
+    avatarTone: $("avatarTone").value,
+    avatarHat: $("avatarHat").value
+  };
+
   };
   saveJSON(STORAGE_PROFILE, profile);
   updateAvatarFromProfile();
